@@ -34,7 +34,7 @@ public class ProductServiceImpl implements ProductService {
   public List<ProductDto> getAllProducts() {
     List<ProductDto> productDtoList = new ArrayList<>();
     productRepository
-        .findAll()
+        .findAllProductWithFeatureAndPhoto()
         .forEach(product -> productDtoList.add(productMapper.toDto(product)));
     return productDtoList;
   }

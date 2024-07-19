@@ -9,6 +9,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedEntityGraphs;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -28,6 +31,16 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Entity
 @Table(name = "product")
+@NamedEntityGraphs({
+        @NamedEntityGraph(
+                name = "Product.specialFeatures",
+                attributeNodes = @NamedAttributeNode("specialFeatures")
+        ),
+        @NamedEntityGraph(
+                name = "Product.photos",
+                attributeNodes = @NamedAttributeNode("photos")
+        )
+})
 public class Product implements Serializable {
 
   @Serial private static final long serialVersionUID = 4603749101621919833L;
