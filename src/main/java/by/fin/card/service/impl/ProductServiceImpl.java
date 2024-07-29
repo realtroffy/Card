@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -56,10 +55,10 @@ public class ProductServiceImpl implements ProductService {
   public ProductDto createProduct(ProductDtoWithoutFeatureAndPhoto productDto) {
     Product product = productMapper.toEntityWithoutFeatureAndPhoto(productDto);
     product.setDescription(generateDescription(product));
-    if(product.getRating()==null){
+    if (product.getRating() == null) {
       product.setRating(0d);
     }
-    if(product.getAvailableUnits()==null){
+    if (product.getAvailableUnits() == null) {
       product.setAvailableUnits(0);
     }
     return productMapper.toDto(productRepository.save(product));
@@ -69,36 +68,16 @@ public class ProductServiceImpl implements ProductService {
   @Override
   public ProductDto updateProduct(Long id, ProductDtoWithoutFeatureAndPhoto productDto) {
     Product product = getProduct(id);
-    if (productDto.getName() != null) {
-      product.setName(productDto.getName());
-    }
-    if (productDto.getBrand() != null) {
-      product.setBrand(productDto.getBrand());
-    }
-    if (productDto.getModel() != null) {
-      product.setModel(productDto.getModel());
-    }
-    if (productDto.getAvailableUnits() != null) {
-      product.setAvailableUnits(productDto.getAvailableUnits());
-    }
-    if (productDto.getWeight() != null) {
-      product.setWeight(productDto.getWeight());
-    }
-    if (productDto.getRating() != null) {
-      product.setRating(productDto.getRating());
-    }
-    if (productDto.getCategoryName() != null) {
-      product.setCategoryName(productDto.getCategoryName());
-    }
-    if (productDto.getColor() != null) {
-      product.setColor(productDto.getColor());
-    }
-    if (productDto.getPrice() != null) {
-      product.setPrice(productDto.getPrice());
-    }
-    if (productDto.getDescription() != null) {
-      product.setDescription(generateDescription(product));
-    }
+    product.setName(productDto.name());
+    product.setBrand(productDto.brand());
+    product.setModel(productDto.model());
+    product.setAvailableUnits(productDto.availableUnits());
+    product.setWeight(productDto.weight());
+    product.setRating(productDto.rating());
+    product.setCategoryName(productDto.categoryName());
+    product.setColor(productDto.color());
+    product.setPrice(productDto.price());
+    product.setDescription(generateDescription(product));
     Product savedProduct = productRepository.save(product);
     return productMapper.toDto(savedProduct);
   }
@@ -115,8 +94,8 @@ public class ProductServiceImpl implements ProductService {
   @Override
   public ProductDto getProductWithHighestRating() {
     Product product =
-        productRepository.findAll().stream()
-            .max(Comparator.comparingDouble(Product::getRating))
+        productRepository
+            .findTopByOrderByRatingDesc()
             .orElseThrow(() -> new NoSuchElementException(NO_PRODUCT_FIND_EXCEPTION_MESSAGE));
     return productMapper.toDto(product);
   }
@@ -125,8 +104,8 @@ public class ProductServiceImpl implements ProductService {
   @Override
   public ProductDto getMostExpensiveProduct() {
     Product product =
-        productRepository.findAll().stream()
-            .max(Comparator.comparingDouble(Product::getPrice))
+        productRepository
+            .findTopByOrderByPriceDesc()
             .orElseThrow(() -> new NoSuchElementException(NO_PRODUCT_FIND_EXCEPTION_MESSAGE));
     return productMapper.toDto(product);
   }
@@ -135,19 +114,19 @@ public class ProductServiceImpl implements ProductService {
   @Override
   public ProductDto getCheapestProduct() {
     Product product =
-        productRepository.findAll().stream()
-            .min(Comparator.comparingDouble(Product::getPrice))
+        productRepository
+            .findTopByOrderByPriceAsc()
             .orElseThrow(() -> new NoSuchElementException(NO_PRODUCT_FIND_EXCEPTION_MESSAGE));
     return productMapper.toDto(product);
   }
 
   private String generateDescription(Product product) {
     String featureNames = "";
-    if (product.getSpecialFeatures() != null) {
-      featureNames = String.join(", ", product.getSpecialFeatures());
+    if (product.getSpecialFeatures() != null && !product.getSpecialFeatures().isEmpty()) {
+      featureNames = " " + String.join(", ", product.getSpecialFeatures());
     }
     return String.format(
-        "Прекрасные %s %s, цвет: %s. %s",
+        "Прекрасные %s %s, цвет: %s.%s",
         product.getName(), product.getBrand(), product.getColor(), featureNames);
   }
 
@@ -155,7 +134,7 @@ public class ProductServiceImpl implements ProductService {
   @Transactional
   public ProductDto addSpecialFeature(Long id, FeatureDto featureDto) {
     Product product = getProduct(id);
-    product.addSpecialFeature(featureDto.getFeatureName());
+    product.addSpecialFeature(featureDto.featureName());
     product.setDescription(generateDescription(product));
     productRepository.save(product);
     return productMapper.toDto(product);
@@ -165,7 +144,7 @@ public class ProductServiceImpl implements ProductService {
   @Transactional
   public ProductDto removeSpecialFeature(Long id, FeatureDto featureDto) {
     Product product = getProduct(id);
-    product.removeSpecialFeature(featureDto.getFeatureName());
+    product.removeSpecialFeature(featureDto.featureName());
     product.setDescription(generateDescription(product));
     productRepository.save(product);
     return productMapper.toDto(product);

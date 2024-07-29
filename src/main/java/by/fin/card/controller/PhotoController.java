@@ -29,7 +29,7 @@ public class PhotoController {
   @GetMapping
   public ResponseEntity<PhotoPageDto> getAllPhotos() {
     List<PhotoDto> photoDtoList = photoService.getAllPhoto();
-    PhotoPageDto photoPageDto = PhotoPageDto.builder().photoDtoList(photoDtoList).build();
+    PhotoPageDto photoPageDto = new PhotoPageDto(photoDtoList);
     return ResponseEntity.ok(photoPageDto);
   }
 
@@ -41,14 +41,14 @@ public class PhotoController {
   @PostMapping
   public ResponseEntity<PhotoPageDto> uploadPhotos(@RequestParam List<MultipartFile> files) {
     List<PhotoDto> photoDtoList = photoService.uploadPhotos(files);
-    PhotoPageDto photoPageDto = PhotoPageDto.builder().photoDtoList(photoDtoList).build();
+    PhotoPageDto photoPageDto = new PhotoPageDto(photoDtoList);
     return ResponseEntity.ok(photoPageDto);
   }
 
   @PostMapping("/edit/resources")
   public ResponseEntity<PhotoPageDto> uploadPhotoFromResources() {
     List<PhotoDto> photoDtoList = photoService.uploadPhotosFromResources();
-    PhotoPageDto photoPageDto = PhotoPageDto.builder().photoDtoList(photoDtoList).build();
+    PhotoPageDto photoPageDto = new PhotoPageDto(photoDtoList);
     return ResponseEntity.ok(photoPageDto);
   }
 

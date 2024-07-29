@@ -29,7 +29,7 @@ public class ProductController {
   @GetMapping
   public ResponseEntity<ProductPageDto> getAllProducts() {
     List<ProductDto> productList = productService.getAllProducts();
-    ProductPageDto productPageDto = ProductPageDto.builder().productList(productList).build();
+    ProductPageDto productPageDto = new ProductPageDto(productList);
     return ResponseEntity.ok(productPageDto);
   }
 

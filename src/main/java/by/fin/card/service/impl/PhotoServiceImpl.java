@@ -12,7 +12,6 @@ import by.fin.card.service.PhotoEditingService;
 import by.fin.card.service.PhotoService;
 import com.google.common.io.Files;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +29,6 @@ import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
-@Slf4j
 public class PhotoServiceImpl implements PhotoService {
 
   public static final String NO_SUCH_PHOTO_EXCEPTION_MESSAGE = "Photo was not found by id = ";
@@ -75,7 +73,6 @@ public class PhotoServiceImpl implements PhotoService {
     List<PhotoDto> photoDtoList = new ArrayList<>();
     for (MultipartFile file : files) {
       if (!isValidExtension(file)) {
-        log.error(INVALID_FILE_EXTENSION_EXCEPTION_MESSAGE + ": {}", file.getName());
         throw new InvalidFileExtensionException(INVALID_FILE_EXTENSION_EXCEPTION_MESSAGE);
       }
       Photo photo = new Photo();
@@ -88,7 +85,6 @@ public class PhotoServiceImpl implements PhotoService {
             photoDataAfterRemovingBackGround,
             new File(PHOTO_PATH_AFTER_EDITING + file.getOriginalFilename()));
       } catch (IOException e) {
-        log.error(READ_BYTE_EXCEPTION_MESSAGE);
         throw new ReadByteException(READ_BYTE_EXCEPTION_MESSAGE);
       }
       photoDtoList.add(photoMapper.toDto(photoRepository.save(photo)));
@@ -103,7 +99,6 @@ public class PhotoServiceImpl implements PhotoService {
     List<PhotoDto> photoDtoList = new ArrayList<>();
     for (File file : files) {
       if (!isValidExtension(file)) {
-        log.error(INVALID_FILE_EXTENSION_EXCEPTION_MESSAGE + ": {}", file.getName());
         throw new InvalidFileExtensionException(INVALID_FILE_EXTENSION_EXCEPTION_MESSAGE);
       }
       Photo photo = new Photo();
@@ -115,7 +110,6 @@ public class PhotoServiceImpl implements PhotoService {
         Files.write(
             photoDataAfterRemovingBackGround, new File(PHOTO_PATH_AFTER_EDITING + file.getName()));
       } catch (IOException e) {
-        log.error(READ_BYTE_EXCEPTION_MESSAGE);
         throw new ReadByteException(READ_BYTE_EXCEPTION_MESSAGE);
       }
       photoDtoList.add(photoMapper.toDto(photoRepository.save(photo)));
@@ -151,7 +145,7 @@ public class PhotoServiceImpl implements PhotoService {
   @Transactional
   public PhotoDto updatePhotoName(Long id, PhotoWithoutData photoWithoutData) {
     Photo photo = getPhoto(id);
-    photo.setName(photoWithoutData.getName());
+    photo.setName(photoWithoutData.name());
     Photo savedPhoto = photoRepository.save(photo);
     return photoMapper.toDto(savedPhoto);
   }
@@ -174,9 +168,6 @@ public class PhotoServiceImpl implements PhotoService {
               .map(Path::toFile)
               .collect(Collectors.toSet());
     } catch (IOException exception) {
-      log.error(
-          COLLECT_FILE_FROM_DIRECTORY_EXCEPTION_MESSAGE + ": {}",
-          PHOTO_PATH_DIRECTORY_BEFORE_EDITING);
       throw new CollectFilesFromDirectoryException(COLLECT_FILE_FROM_DIRECTORY_EXCEPTION_MESSAGE);
     }
     return files;
